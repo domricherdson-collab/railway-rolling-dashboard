@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Rolling | Live Multi-Mat Hub & Tournament Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #f59e0b;
+            --accent-green: #10b981;
+            --danger: #ef4444;
+            --bg-light: #f1f5f9;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding-bottom: 3rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #94a3b8;
+        }
+
+        nav {
+            background: #1e293b;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            flex-wrap: wrap;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .nav-btn {
+            background: transparent;
+            color: #cbd5e1;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--accent);
+            color: #0f172a;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* MAT GRID VIEW */
+        .mats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .mat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .mat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .mat-header {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .mat-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-live { background: var(--accent-green); color: white; }
+        .status-pause { background: var(--accent); color: #0f172a; }
+        .status-final { background: #64748b; color: white; }
+
+        .mat-body {
+            padding: 1.25rem;
+        }
+
+        .timer-bar {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .timer-time {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .timer-quarter {
+            font-weight: 700;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .scores-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .player-block {
+            text-align: center;
+            padding: 0.75rem;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .player-block.serving {
+            border-color: var(--accent);
+            background: #fffbeeb0;
+        }
+
+        .p-name {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .p-score {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .vs-divider {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            color: #cbd5e1;
+            font-size: 1.2rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.4rem;
+        }
+
+        .btn-act {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.4rem;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-act:hover { opacity: 0.85; }
+        .btn-act.flag { background: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; }
+        .btn-act.flag:hover { background: var(--danger); color: white; }
+
+        /* BRACKET STYLES */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--accent);
+            color: var(--primary);
+        }
+
+        .bracket-container {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        .bracket-round {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .round-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .match-box {
+            background: #fafafa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            padding: 0.75rem;
+        }
+
+        .match-box .team {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            font-weight: 600;
+        }
+
+        .match-box .team.winner {
+            color: var(--accent-green);
+            font-weight: 800;
+        }
+
+        @media (max-width: 768px) {
+            .mats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Railway Rolling</h1>
+        <p>Live Multi-Mat Court Hub & Tournament Central</p>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="showTab('live-mats')">📹 All Live Mats (4)</button>
+        <button class="nav-btn" onclick="showTab('bracket')">🏆 Tournament Bracket</button>
+        <button class="nav-btn" onclick="showTab('schedule')">📋 Match Schedule</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- LIVE MATS GRID TAB -->
+        <div id="live-mats" class="tab-content active">
+            <div class="mats-grid">
+
+                <!-- MAT 1 -->
+                <div class="mat-card">
+                    <div class="mat-header">
+                        <div class="mat-title">🔴 Mat 1 (Main Court)</div>
+                        <span class="status-badge status-live" id="m1-status">LIVE</span>
+                    </div>
+                    <div class="mat-body">
+                        <div class="timer-bar">
+                            <span class="timer-quarter" id="m1-qtr">Quarter 3</span>
+                            <span class="timer-time" id="m1-timer">01:42</span>
+                        </div>
+                        <div class="scores-row">
+                            <div class="player-block serving">
+                                <div class="p-name">J. Miller</div>
+                                <div class="p-score" id="m1-p1-score">14</div>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="player-block">
+                                <div class="p-name">A. Vance</div>
+                                <div class="p-score" id="m1-p2-score">11</div>
+                            </div>
+                        </div>
+                        <div class="quick-actions">
+                            <button class="btn-act" onclick="addPt(1, 1, 3)">🎯 +3</button>
+                            <button class="btn-act" onclick="addPt(1, 1, 2)">🟡 +2</button>
+                            <button class="btn-act" onclick="addPt(1, 1, 1)">🪵 +1</button>
+                            <button class="btn-act flag" onclick="flagPt(1, 1)">🚩 -1</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAT 2 -->
+                <div class="mat-card">
+                    <div class="mat-header">
+                        <div class="mat-title">🔵 Mat 2</div>
+                        <span class="status-badge status-pause" id="m2-status">PAUSED (RE-RACK)</span>
+                    </div>
+                    <div class="mat-body">
+                        <div class="timer-bar">
+                            <span class="timer-quarter" id="m2-qtr">Quarter 2</span>
+                            <span class="timer-time" id="m2-timer">00:54</span>
+                        </div>
+                        <div class="scores-row">
+                            <div class="player-block">
+                                <div class="p-name">R. Chen</div>
+                                <div class="p-score" id="m2-p1-score">8</div>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="player-block serving">
+                                <div class="p-name">T. Oakley</div>
+                                <div class="p-score" id="m2-p2-score">9</div>
+                            </div>
+                        </div>
+                        <div class="quick-actions">
+                            <button class="btn-act" onclick="addPt(2, 2, 3)">🎯 +3</button>
+                            <button class="btn-act" onclick="addPt(2, 2, 2)">🟡 +2</button>
+                            <button class="btn-act" onclick="addPt(2, 2, 1)">🪵 +1</button>
+                            <button class="btn-act flag" onclick="flagPt(2, 2)">🚩 -1</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAT 3 -->
+                <div class="mat-card">
+                    <div class="mat-header">
+                        <div class="mat-title">🟢 Mat 3</div>
+                        <span class="status-badge status-live" id="m3-status">LIVE</span>
+                    </div>
+                    <div class="mat-body">
+                        <div class="timer-bar">
+                            <span class="timer-quarter" id="m3-qtr">Quarter 4</span>
+                            <span class="timer-time" id="m3-timer">00:15</span>
+                        </div>
+                        <div class="scores-row">
+                            <div class="player-block serving">
+                                <div class="p-name">K. Kowalski</div>
+                                <div class="p-score" id="m3-p1-score">18</div>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="player-block">
+                                <div class="p-name">D. Smith</div>
+                                <div class="p-score" id="m3-p2-score">18</div>
+                            </div>
+                        </div>
+                        <div class="quick-actions">
+                            <button class="btn-act" onclick="addPt(3, 1, 3)">🎯 +3</button>
+                            <button class="btn-act" onclick="addPt(3, 1, 2)">🟡 +2</button>
+                            <button class="btn-act" onclick="addPt(3, 1, 1)">🪵 +1</button>
+                            <button class="btn-act flag" onclick="flagPt(3, 1)">🚩 -1</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAT 4 -->
+                <div class="mat-card">
+                    <div class="mat-header">
+                        <div class="mat-title">🟡 Mat 4</div>
+                        <span class="status-badge status-final" id="m4-status">FINAL</span>
+                    </div>
+                    <div class="mat-body">
+                        <div class="timer-bar">
+                            <span class="timer-quarter" id="m4-qtr">Quarter 4</span>
+                            <span class="timer-time" id="m4-timer">00:00</span>
+                        </div>
+                        <div class="scores-row">
+                            <div class="player-block">
+                                <div class="p-name">M. Garcia</div>
+                                <div class="p-score" id="m4-p1-score">21</div>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="player-block serving">
+                                <div class="p-name">L. Taylor</div>
+                                <div class="p-score" id="m4-p2-score">15</div>
+                            </div>
+                        </div>
+                        <div class="quick-actions">
+                            <button class="btn-act" onclick="addPt(4, 1, 3)">🎯 +3</button>
+                            <button class="btn-act" onclick="addPt(4, 1, 2)">🟡 +2</button>
+                            <button class="btn-act" onclick="addPt(4, 1, 1)">🪵 +1</button>
+                            <button class="btn-act flag" onclick="flagPt(4, 1)">🚩 -1</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TOURNAMENT BRACKET TAB -->
+        <div id="bracket" class="tab-content">
+            <div class="card">
+                <h2>Championship Tournament Bracket</h2>
+                <div class="bracket-container">
+                    
+                    <div class="bracket-round">
+                        <div class="round-title">Semi-Finals</div>
+                        <div class="match-box">
+                            <div class="team winner"><span>J. Miller</span> <span>19</span></div>
+                            <div class="team"><span>R. Chen</span> <span>12</span></div>
+                        </div>
+                        <div class="match-box">
+                            <div class="team winner"><span>M. Garcia</span> <span>21</span></div>
+                            <div class="team"><span>L. Taylor</span> <span>15</span></div>
+                        </div>
+                    </div>
+
+                    <div class="bracket-round">
+                        <div class="round-title">Finals</div>
+                        <div class="match-box" style="margin-top: 2rem;">
+                            <div class="team"><span>J. Miller</span> <span>-</span></div>
+                            <div class="team"><span>M. Garcia</span> <span>-</span></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- SCHEDULE TAB -->
+        <div id="schedule" class="tab-content">
+            <div class="card">
+                <h2>Upcoming Mat Assignments</h2>
+                <ul style="list-style: none;">
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);">
+                        <strong>Mat 1 - 2:30 PM:</strong> Championship Finals (J. Miller vs M. Garcia)
+                    </li>
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);">
+                        <strong>Mat 2 - 2:30 PM:</strong> 3rd Place Playoff (R. Chen vs L. Taylor)
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // State management for scores
+        const matScores = {
+            1: { p1: 14, p2: 11 },
+            2: { p1: 8, p2: 9 },
+            3: { p1: 18, p2: 18 },
+            4: { p1: 21, p2: 15 }
+        };
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function addPt(matId, playerNum, pts) {
+            if (playerNum === 1) {
+                matScores[matId].p1 += pts;
+                document.getElementById(`m${matId}-p1-score`).innerText = matScores[matId].p1;
+            } else {
+                matScores[matId].p2 += pts;
+                document.getElementById(`m${matId}-p2-score`).innerText = matScores[matId].p2;
+            }
+        }
+
+        function flagPt(matId, playerNum) {
+            if (playerNum === 1) {
+                matScores[matId].p1 = Math.max(0, matScores[matId].p1 - 1);
+                document.getElementById(`m${matId}-p1-score`).innerText = matScores[matId].p1;
+            } else {
+                matScores[matId].p2 = Math.max(0, matScores[matId].p2 - 1);
+                document.getElementById(`m${matId}-p2-score`).innerText = matScores[matId].p2;
+            }
+        }
+    </script>
+</body>
+</html>
